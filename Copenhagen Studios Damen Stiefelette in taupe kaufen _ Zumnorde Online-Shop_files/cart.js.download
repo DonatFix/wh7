@@ -1,0 +1,52 @@
+
+var ShoeSizeMe_cart = (function() {
+  'use strict';
+
+  var public_function_wrapper;
+
+  /* PRIVATE FUNCTIONS */
+  var createXHRObject,getCookie;
+
+  /* PUBLIC FUNCTIONS */
+  var trackCart;
+
+  createXHRObject = function() {
+    if (window.ActiveXObject) {
+      return new ActiveXObject("Microsoft.XMLHTTP");
+    }else if (window.XMLHttpRequest) {
+      return new XMLHttpRequest();
+    }
+  };
+
+  getCookie = function(cname) {
+    var cookieVersion = "4";
+    var name = cname + "_" + cookieVersion + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1);
+      if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+  };
+
+  trackCart = function(){
+    var uuid = getCookie("ssmp_sid");
+    if(uuid=="") return;
+    ShoeSizeShoppingCart['ssm_sid'] = uuid;
+    var json = JSON.stringify(ShoeSizeShoppingCart);
+    var xmlHttp = createXHRObject();
+    xmlHttp.open("POST", "https://shoesize.me/api/others/cart", true);
+    xmlHttp.setRequestHeader("Content-Type","application/json");
+    xmlHttp.setRequestHeader("Accept", "application/vnd.ssm.v4");
+    xmlHttp.send(json);
+  }
+
+  public_function_wrapper = {
+    trackCart:trackCart
+  };
+
+  return public_function_wrapper;
+})();
+
+ShoeSizeMe_cart.trackCart();
